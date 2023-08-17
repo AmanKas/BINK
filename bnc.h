@@ -15,3 +15,13 @@ bnc* remove_leading_zeros(bnc *num);
 
 
 void read_bnc(bnc* i, char* str);
+
+
+
+void print_bnc(bnc* i);
+
+
+intal deep_copy(bnc a1, bnc *a);
+
+
+intal* add_bnc(bnc* a, bnc* b);
