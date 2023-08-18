@@ -30,3 +30,11 @@ bnc* subtract_bnc(bnc* a, bnc* b);
 
 
 
+
+bnc* multiply_byten(bnc *a, int exp);
+
+bnc* padarray(bnc* a, int num);
+
+bnc* multiply_bnc(bnc* a, bnc* b);
+
+int compare_bnc(bnc a1, bnc b1);
