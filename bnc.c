@@ -269,3 +269,146 @@ bnc* add_bnc(bnc* a, bnc* b)
     }
     return result;
 }
+
+
+bnc* subtract_bnc(bnc* a, bnc* b) {
+     int len, loop, ans, flag = 0, i, j, prev;
+     bnc temp;
+     if (a->n > b->n) {
+          len = a->n;
+          loop = b->n;
+     }
+     else {
+          len = b->n;
+          loop = a->n;
+     }
+
+     bnc a1; //copies to work with
+     bnc b1;
+
+     a1.n = 0;
+     a1.s = NULL;
+
+     b1.n = 0;
+     b1.s = NULL;
+
+     a1 = deep_copy(a1, a);        //create deep copies
+     b1 = deep_copy(b1, b);
+
+     bnc *result = (bnc *)malloc(sizeof(bnc));        //contains the result of the subtraction
+
+     if ((a1.s[0] == '+' && b1.s[0] == '+') || (a1.s[0] == '-' && b1.s[0] == '-')) {
+          result->s = (char *)malloc(sizeof(char) * (len + 2));
+          for (i = 0; i < (len + 2); i++) {
+               result->s[i] = '0';
+          }
+          result->n = len;
+          int index = len + 1;
+          result->s[index--] = '\0';
+          if ((a1.s[0] == '+' && b1.s[0] == '+')) {
+               if (a->n < b->n) {
+                    flag = 1;
+                    temp = a1;
+                    a1 = b1;
+                    b1 = temp;
+               }
+               else if (a->n == b->n) {
+                    for (i = 1; i <= a->n; i++) {
+                         if (a->s[i] != '0' || b->s[i] != '0') {
+                              if ((a->s[i] - '0') < (b->s[i] - '0')) {
+                                   flag = 1;
+                                   temp = a1;
+                                   a1 = b1;
+                                   b1 = temp;
+                                   break;
+                              }
+                              else {
+                                   break;
+                              }
+                         }
+                    }
+               }
+          }
+          else if ((a1.s[0] == '-' && b1.s[0] == '-')) {
+               if (a->n < b->n) {
+                    temp = a1;
+                    a1 = b1;
+                    b1 = temp;
+               }
+               else if (a->n == b->n) {
+                    for (i = 1; i <= a->n; i++) {
+                         if (a->s[i] != '0' || b->s[i] != 0) {
+                              if ((a->s[i] - '0') < (b->s[i] - '0')) {
+                                   temp = a1;
+                                   a1 = b1;
+                                   b1 = temp;
+                                   break;
+                              }
+                              else {
+                                   flag = 1;
+                                   break;
+                              }
+                         }
+                    }
+               }
+               else {
+                    flag = 1;
+               }
+          }
+          while (loop > 0) {
+               ans = (a1.s[len] - '0') - (b1.s[loop] - '0');
+               if (ans < 0) {
+                    a1.s[len] = (((a1.s[len] - '0') + 10) + '0');
+                    j = len - 1;
+                    prev = ((a1.s[j] - '0') - 1);
+                    while (prev < 0) {
+                         a1.s[j] = (((a1.s[j] - '0') + 9) + '0');
+                         prev = ((a1.s[--j] - '0') - 1);
+                    }
+                    a1.s[j] = (((a1.s[j] - '0') - 1) + '0');
+                    result->s[index--] =  (((a1.s[len] - '0') - (b1.s[loop] - '0')) + '0');
+               }
+               else {
+                    result->s[index--] = (ans + '0');
+               }
+               len--;
+               loop--;
+          }
+          while (len > 0) {
+               result->s[index--] = a1.s[len--];
+          }
+          int count = 0;
+          for (i = 0; i < result->n; i++) {       //remove leading zeros
+               if (result->s[0] != '0') {
+                    break;
+               }
+               if (result->s[0] == '0' && result->s[1] == '0' && i != (result->n - 1)) {
+                    for (j = 0; j <= result->n; j++) {
+                         result->s[j] = result->s[j + 1];
+                    }
+                    count++;
+               }
+          }
+          result->s = (char *)realloc(result->s, sizeof(char) * (result->n + 2 - count));
+          result->n -= (count);
+          if (flag == 1) {
+               result->s[0] = '-';
+          }
+          else {
+               result->s[0] = '+';
+          }
+     }
+     else if (a1.s[0] == '+' && b1.s[0] == '-') { // (+A) - (-B) = A + B. Forward call to add_bnc for addition.
+          b1.s[0] = '+';
+          result = add_bnc(&a1, &b1);
+          b1.s[0] = '-';
+     }
+     else if (a1.s[0] == '-' && b1.s[0] == '+') { // (-A) - (B) = -(A + B). Forward call to add_bnc for addition.
+          a1.s[0] = '+';
+          b1.s[0] = '+';
+          result = add_bnc(&a1, &b1);
+          result->s[0] = '-';
+          a1.s[0] = '-';
+     }
+     return result;
+}

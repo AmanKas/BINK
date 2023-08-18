@@ -21,7 +21,12 @@ void read_bnc(bnc* i, char* str);
 void print_bnc(bnc* i);
 
 
-intal deep_copy(bnc a1, bnc *a);
+bnc deep_copy(bnc a1, bnc *a);
+
+bnc* add_bnc(bnc* a, bnc* b);
 
 
-intal* add_bnc(bnc* a, bnc* b);
+bnc* subtract_bnc(bnc* a, bnc* b);
+
+
+
