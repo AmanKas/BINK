@@ -634,3 +634,97 @@ int compare_bnc(bnc a1, bnc b1)
     }
     return 0;                               //if both are equal return 0
 }
+
+
+bnc* divide_bnc(bnc* a, bnc* b) {
+     bnc *result = create_bnc();         //stores the result. Initially 0.
+     bnc a1;           //copy to work with
+     bnc b1;           //copy to work with
+
+     a1.n = 0;
+     a1.s = NULL;
+
+     b1.n = 0;
+     b1.s = NULL;
+
+     a1 = deep_copy(a1, a);
+     b1 = deep_copy(b1, b);
+
+     bnc *zero = create_bnc();
+
+     bnc res;          //copy of b1
+     int count;          //used to keep track of the number of subtrations in each iteration
+     int len = 1;   //regulate the length of the result array
+
+     res.n = 0;
+     res.s = NULL;
+
+     if ((a1.s[0] == '-' || b1.s[0] == '-') && !(a1.s[0] == '-' && b1.s[0] == '-')) {
+          result->s[0] = '-';
+     }
+     a1.s[0] = '+';
+     b1.s[0] = '+';
+
+     if (compare_bnc(b1, *zero) == 0) {
+          result->s[1] = '?';
+          printf("\n\nDivision by zero is not possible!");
+          return result;
+     }
+
+     res = deep_copy(res, &b1);
+
+     while (compare_bnc(a1, res) >= 0) {        //mutiply res by 10 as many times as possible such that res < a1
+          res = *multiply_byten(&res, 1);
+     }
+     res.s[res.n] = res.s[res.n + 1];
+     res.s = (char *)realloc(res.s, sizeof(char) * (res.n + 1));
+     res.n = res.n - 1;
+
+     while (compare_bnc(res, b1) >= 0) {
+          count = 0;
+          while (compare_bnc(a1, res) >= 0) {        //loop runs as long as a1 >= res
+               a1 = *subtract_bnc(&a1, &res);   //subtract a1 by res
+               count++;       //number of subtractions
+          }
+          result->s = (char *)realloc(result->s, sizeof(char) * (len + 2));
+          result->n = len;
+          len++;
+          result->s[result->n] = count + '0';               //append count to result
+          res.s[res.n] = res.s[res.n + 1];
+          res.s = (char *)realloc(res.s, sizeof(char) * (res.n + 1)); //strip one zero off of res and repeat.
+          res.n = res.n - 1;
+     }
+     return result;
+}
+
+
+bnc* pow_bnc(bnc* a, bnc* b) {
+     bnc bcpy;
+     bnc acpy;
+
+     acpy.n = 0;
+     acpy.s = NULL;
+
+     bcpy.n = 0;
+     bcpy.s = NULL;
+
+     bcpy = deep_copy(bcpy, b);
+     acpy = deep_copy(acpy, a);
+
+     bnc *strone = create_bnc();         //stores 1 to decrement bcpy by 1 in every iteration
+     strone->s[1] = '1';
+     bnc *result = create_bnc();         //result is initially 1
+     result->s[1] = '1';
+
+     bnc base;
+     base.s = (char *)malloc(sizeof(char) * 3);   //used to compare with bcpy. If bcpy = 0, loop terminates
+     base.s[0] = '+';
+     base.s[1] = '0';
+     base.s[2] = '\0';
+     base.n = 1;
+     while (compare_bnc(bcpy, base) != 0) {
+          result = multiply_bnc(result, &acpy); //multiply the existing result by acpy
+          bcpy = *subtract_bnc(&bcpy, strone);  //decrement bcpy
+     }
+     return result;
+}
